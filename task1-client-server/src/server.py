@@ -1,7 +1,7 @@
 import logging
 import socket
 import threading
-from config import HOST, PORT
+from config import BUFFER_SIZE, HOST, PORT
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,25 @@ class EchoServer:
         logger.info("Server listening on %s:%s", self.host, self.port)
 
         while not self._stop_event.is_set():
-            pass  # Placeholder for accepting client connections and handling them
+            try:
+                client_socket, client_address = self._server_socket.accept()
+            except OSError:
+                # Expected when stop() closes the listening socket.
+                if self._stop_event.is_set():
+                    break
+                raise
+
+            logger.info(
+                f"Client connected: {client_address[0]}:{client_address[1]} | socket: {client_socket}"
+            )
+
+            data = client_socket.recv(BUFFER_SIZE)
+            if not data:
+                logger.info("Client disconnected: %s:%s", client_address[0], client_address[1])
+                client_socket.close()
+                continue
+
+            client_socket.sendall(data)
 
     def stop(self) -> None:
         """Stop accepting clients and close active connections."""
