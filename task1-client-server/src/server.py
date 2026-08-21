@@ -23,9 +23,11 @@ class EchoServer:
         """Start accepting client connections."""
 
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._server_socket.bind((self.host, self.port))
         self._server_socket.listen()
-
+        self._server_socket.settimeout(0.5)  # Makes stop() responsive when there are no incoming connections.
+        
         logger.info("Server listening on %s:%s", self.host, self.port)
 
         while not self._stop_event.is_set():
