@@ -52,29 +52,26 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         request = self.context.get("request")
-        book_id = self.context.get("book_id")
+        book = self.context.get("book")
         user = getattr(request, "user", None)
 
-        if book_id is not None and user is not None:
-            if Review.objects.filter(book_id=book_id, user=user).exists():
+        if book is not None and user is not None:
+            if Review.objects.filter(book=book, user=user).exists():
                 logger.info(
-                    f"User '{user}' attempted to review book_id {book_id} which was already reviewed by them."
+                    f"User '{user}' attempted to review book {book} which was already reviewed by them."
                 )
                 raise serializers.ValidationError("You have already reviewed this book.")
         return attrs
 
     def create(self, validated_data):
         try:
-            book_id = validated_data.pop("book_id", self.context["book_id"])
+            book = validated_data.pop("book", self.context["book"])
             user = validated_data.pop("user", self.context["request"].user)
-            review = Review.objects.create(book_id=book_id, user=user, **validated_data)
+            review = Review.objects.create(book=book, user=user, **validated_data)
             logger.info(
-                f"Review created by user '{user}' for book_id {book_id}: Review ID {review.id}"
+                f"Review created by user '{user}' for book {book}: Review ID {review.id}"
             )
             return review
-        except KeyError as e:
-            logger.error(f"Missing required field when creating review: {str(e)}")
-            raise serializers.ValidationError(f"Missing required field: {str(e)}")
         except Exception as e:
             logger.error(f"An error occurred while creating the review: {str(e)}")
             raise serializers.ValidationError(f"An error occurred while creating the review: {str(e)}")
