@@ -9,3 +9,5 @@ pytest==8.4.1
 pytest-django==4.10.0
 python-decouple==3.8
 python-dotenv==1.2.3
+pytest-cov==7.1.0
+coverage==7.15.4
