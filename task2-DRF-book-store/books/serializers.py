@@ -1,6 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from .models import Book, Review
@@ -53,14 +51,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         book_id = self.context.get("book_id")
         user = getattr(request, "user", None)
-   
+
         if book_id is not None and user is not None:
             if Review.objects.filter(book_id=book_id, user=user).exists():
                 raise serializers.ValidationError("You have already reviewed this book.")
-
         return attrs
 
     def create(self, validated_data):
-        book_id = validated_data.pop("book_id", self.context["book_id"])
-        user = validated_data.pop("user", self.context["request"].user)
-        return Review.objects.create(book_id=book_id, user=user, **validated_data)
+        try:
+            book_id = validated_data.pop("book_id", self.context["book_id"])
+            user = validated_data.pop("user", self.context["request"].user)
+            return Review.objects.create(book_id=book_id, user=user, **validated_data)
+        except KeyError as e:
+            raise serializers.ValidationError(f"Missing required field: {str(e)}")
+        except Exception as e:
+            raise serializers.ValidationError(f"An error occurred while creating the review: {str(e)}")

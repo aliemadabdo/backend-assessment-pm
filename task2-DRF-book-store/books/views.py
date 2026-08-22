@@ -4,6 +4,10 @@ from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schem
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.exceptions import NotFound
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Book, Review
 from .serializers import BookDetailSerializer, BookListSerializer, ReviewSerializer
@@ -26,10 +30,9 @@ class BookListView(ListAPIView):
         # If this is the DRF documentation view, return no results
         if getattr(self, "swagger_fake_view", False):
             return Book.objects.none()
-            
+
         # we only fetch minimal fields for listing performance;
         return Book.objects.only("id", "title", "author", "published_date")
-
 
     @extend_schema(
         tags=["Books"],
@@ -77,7 +80,10 @@ class BookListView(ListAPIView):
         ],
     )
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        try:
+            return super().get(request, *args, **kwargs)
+        except Exception as e:
+            return Response({"detail": "An error occurred while fetching books."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BookDetailView(RetrieveAPIView):
     """Return the details for a single book including average rating and review count."""
@@ -92,7 +98,12 @@ class BookDetailView(RetrieveAPIView):
 
     @extend_schema(tags=["Books"])
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        try:
+            return super().get(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            return Response({"detail": "Book not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": "An error occurred while fetching the book details."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class BookReviewListCreateView(ListCreateAPIView):
@@ -110,13 +121,11 @@ class BookReviewListCreateView(ListCreateAPIView):
             .select_related("book", "user")
             .order_by("-created_at")
         )
-               
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["book_id"] = self.kwargs["pk"] # for Clarity and testability in serializer
+        context["book_id"] = self.kwargs["pk"]  # for Clarity and testability in serializer
         return context
-
 
     @extend_schema(
         tags=["Reviews"],
@@ -128,9 +137,16 @@ class BookReviewListCreateView(ListCreateAPIView):
         ],
     )
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            return Response({"detail": "An error occurred while creating the review."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @extend_schema(tags=["Reviews"])
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-   
+        try:
+            return super().get(request, *args, **kwargs)
+        except NotFound as e:
+            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": "An error occurred while fetching the reviews."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
