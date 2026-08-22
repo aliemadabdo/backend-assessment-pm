@@ -46,7 +46,7 @@ else
 fi
 
 # ── Database Setup ───────────────────────────────────────────
-docker-compose down -v
+docker-compose down
 docker-compose up -d
 
 # Wait for the database to be ready
@@ -79,7 +79,7 @@ unset DJANGO_SUPERUSER_PASSWORD
 
 # ── Start Backend ────────────────────────────────────────────
 echo "Starting backend..."
-python manage.py runserver &
+python manage.py runserver
 BACKEND_PID=$!
 
 # Verify backend actually started
