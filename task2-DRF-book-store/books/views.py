@@ -25,9 +25,8 @@ class BookListView(ListAPIView):
     }
 
     def get_queryset(self):
-        # For schema generation - out of test coverage
         if getattr(self, "swagger_fake_view", False):
-            return Book.objects.none()
+            return Book.objects.none() # pragma: no cover
 
         # we only fetch minimal fields for listing performance;
         return Book.objects.only("id", "title", "author", "published_date")
@@ -88,9 +87,8 @@ class BookDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # for schema generation - out of test coverage
         if getattr(self, "swagger_fake_view", False):
-            return Book.objects.none()
+            return Book.objects.none() # pragma: no cover
         return Book.objects.annotate(average_rating=Avg("reviews__rating"), review_count=Count("reviews"))
 
     @extend_schema(tags=["Books"])
@@ -108,7 +106,7 @@ class BookReviewListCreateView(ListCreateAPIView):
     def get_queryset(self):
         # for schema generation - out of test coverage
         if getattr(self, "swagger_fake_view", False):
-            return Review.objects.none()
+            return Review.objects.none() # pragma: no cover
 
         book = get_object_or_404(Book, pk=self.kwargs["pk"])
 
