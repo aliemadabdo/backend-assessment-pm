@@ -8,7 +8,7 @@ class Book(models.Model):
 
     title = models.CharField(max_length=255, db_index=True)
     author = models.CharField(max_length=255, db_index=True)
-    description = models.TextField()
+    description = models.TextField(max_length=1000)
     published_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -25,7 +25,7 @@ class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="reviews")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews")
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    comment = models.TextField()
+    comment = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
