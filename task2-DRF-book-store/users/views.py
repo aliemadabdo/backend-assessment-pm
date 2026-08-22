@@ -10,13 +10,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
 @extend_schema(
     request={
         "application/json": {
@@ -24,6 +17,7 @@ def get_tokens_for_user(user):
             "properties": {
                 "username": {"type": "string"},
                 "password": {"type": "string"},
+                "email": {"type": "string"},
             },
             "required": ["username", "password"],
         }
@@ -32,8 +26,9 @@ def get_tokens_for_user(user):
         201: {
             "type": "object",
             "properties": {
-                "access": {"type": "string"},
-                "refresh": {"type": "string"},
+                "username": {"type": "string"},
+                "email": {"type": "string"},
+                "token": {"type": "string"},
             },
         },
         400: {
@@ -50,7 +45,8 @@ class UserRegisterView(APIView):
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
-        
+        email = request.data.get("email", "")
+
         if not username or not password:
             return Response(
                 {"detail": "Username and password are required."},
@@ -64,15 +60,22 @@ class UserRegisterView(APIView):
             )
 
         try:
-            user = User.objects.create_user(username=username, password=password)
-            tokens = get_tokens_for_user(user)
-            return Response(tokens, status=status.HTTP_201_CREATED)
+            user = User.objects.create_user(username=username, password=password, email=email)
+            refresh = RefreshToken.for_user(user)
+            token = str(refresh.access_token)
+            return Response(
+                {
+                    "username": user.username,
+                    "email": user.email,
+                    "token": token,
+                },
+                status=status.HTTP_201_CREATED,
+            )
         except IntegrityError:
             return Response(
                 {"detail": "Could not create user."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
 
 @extend_schema(
     request={
@@ -89,8 +92,8 @@ class UserRegisterView(APIView):
         200: {
             "type": "object",
             "properties": {
-                "access": {"type": "string"},
-                "refresh": {"type": "string"},
+                "username": {"type": "string"},
+                "token": {"type": "string"},
             },
         },
         400: {
@@ -116,8 +119,15 @@ class UserLoginView(APIView):
         
         user = authenticate(username=username, password=password)
         if user is not None:
-            tokens = get_tokens_for_user(user)
-            return Response(tokens)
+            refresh = RefreshToken.for_user(user)
+            token = str(refresh.access_token)
+            return Response(
+                {
+                    "username": user.username,
+                    "token": token,
+                },
+                status=status.HTTP_200_OK,
+            )
         else:
             return Response(
                 {"detail": "Invalid credentials."},
