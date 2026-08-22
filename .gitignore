@@ -148,7 +148,7 @@ activemq-data/
 *.sage.py
 
 # Environments
-.env
+# .env
 .envrc
 .venv
 env/
@@ -224,7 +224,7 @@ __pycache__/
 *.pyc
 
 # Django
-.env
+# .env
 *.sqlite3
 
 # OS/editor
