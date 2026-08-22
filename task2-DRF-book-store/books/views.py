@@ -1,3 +1,4 @@
+import logging
 from django.db.models import Avg, Count
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
@@ -11,6 +12,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Book, Review
 from .serializers import BookDetailSerializer, BookListSerializer, ReviewSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class BookListView(ListAPIView):
@@ -81,8 +84,10 @@ class BookListView(ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         try:
+            logger.info("BookListView GET requested by user %s", request.user)
             return super().get(request, *args, **kwargs)
         except Exception as e:
+            logger.error("BookListView: Error fetching books for user %s: %s", request.user, str(e), exc_info=True)
             return Response({"detail": "An error occurred while fetching books."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BookDetailView(RetrieveAPIView):
@@ -99,10 +104,13 @@ class BookDetailView(RetrieveAPIView):
     @extend_schema(tags=["Books"])
     def get(self, request, *args, **kwargs):
         try:
+            logger.info("BookDetailView GET requested for book id %s by user %s", kwargs.get("pk"), request.user)
             return super().get(request, *args, **kwargs)
         except ObjectDoesNotExist:
+            logger.warning("BookDetailView: Book with id %s not found (user %s)", kwargs.get("pk"), request.user)
             return Response({"detail": "Book not found."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
+            logger.error("BookDetailView: Error fetching book id %s for user %s: %s", kwargs.get("pk"), request.user, str(e), exc_info=True)
             return Response({"detail": "An error occurred while fetching the book details."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -138,15 +146,35 @@ class BookReviewListCreateView(ListCreateAPIView):
     )
     def post(self, request, *args, **kwargs):
         try:
+            logger.info(
+                "BookReviewListCreateView POST: Creating review for book id %s by user %s",
+                kwargs.get("pk"), request.user
+            )
             return super().post(request, *args, **kwargs)
         except Exception as e:
+            logger.error(
+                "BookReviewListCreateView: Error creating review for book id %s by user %s: %s",
+                kwargs.get("pk"), request.user, str(e), exc_info=True
+            )
             return Response({"detail": "An error occurred while creating the review."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @extend_schema(tags=["Reviews"])
     def get(self, request, *args, **kwargs):
         try:
+            logger.info(
+                "BookReviewListCreateView GET: Listing reviews for book id %s by user %s",
+                kwargs.get("pk"), request.user
+            )
             return super().get(request, *args, **kwargs)
         except NotFound as e:
+            logger.warning(
+                "BookReviewListCreateView: Reviews not found for book id %s by user %s: %s",
+                kwargs.get("pk"), request.user, str(e)
+            )
             return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
+            logger.error(
+                "BookReviewListCreateView: Error listing reviews for book id %s by user %s: %s",
+                kwargs.get("pk"), request.user, str(e), exc_info=True
+            )
             return Response({"detail": "An error occurred while fetching the reviews."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

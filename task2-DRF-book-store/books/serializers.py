@@ -1,7 +1,10 @@
+import logging
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import Book, Review
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -54,6 +57,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 
         if book_id is not None and user is not None:
             if Review.objects.filter(book_id=book_id, user=user).exists():
+                logger.info(
+                    f"User '{user}' attempted to review book_id {book_id} which was already reviewed by them."
+                )
                 raise serializers.ValidationError("You have already reviewed this book.")
         return attrs
 
@@ -61,8 +67,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         try:
             book_id = validated_data.pop("book_id", self.context["book_id"])
             user = validated_data.pop("user", self.context["request"].user)
-            return Review.objects.create(book_id=book_id, user=user, **validated_data)
+            review = Review.objects.create(book_id=book_id, user=user, **validated_data)
+            logger.info(
+                f"Review created by user '{user}' for book_id {book_id}: Review ID {review.id}"
+            )
+            return review
         except KeyError as e:
+            logger.error(f"Missing required field when creating review: {str(e)}")
             raise serializers.ValidationError(f"Missing required field: {str(e)}")
         except Exception as e:
+            logger.error(f"An error occurred while creating the review: {str(e)}")
             raise serializers.ValidationError(f"An error occurred while creating the review: {str(e)}")

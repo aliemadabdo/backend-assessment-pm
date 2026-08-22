@@ -162,33 +162,24 @@ SPECTACULAR_SETTINGS = {
 }
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
+    "version": 1,
+    "disable_existing_loggers": False,
     'formatters': {
         'simple': {
             'format': '[{levelname}] {name}: {message}',
             'style': '{',
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
             'formatter': 'simple',
+
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-        },
-        '__main__': {
-            'handlers': ['console'],
-            'level': 'INFO',
-        },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
 }
 
