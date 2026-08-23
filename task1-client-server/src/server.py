@@ -1,7 +1,7 @@
 import logging
 import socket
 import threading
-from config import HOST, PORT, BUFFER_SIZE
+from config import HOST, MSG_POSTFIX, MSG_PREFIX, PORT, BUFFER_SIZE
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +86,14 @@ class EchoServer:
         for thread in threads:
             thread.join(timeout=2)
 
+    def _clean_msg(self, message):
+        if message.startswith(MSG_PREFIX):
+            message = message[len(MSG_PREFIX):]
+        if message.endswith(MSG_POSTFIX):
+            message = message[:-len(MSG_POSTFIX)]
+        return message
+       
+
     def _handle_client(
         self,
         client_socket: socket.socket,
@@ -111,7 +119,7 @@ class EchoServer:
                 message = data.decode("utf-8")
 
                 logger.info(
-                    f"Message from {address}: {message}"
+                    f"Message from {address}: {self._clean_msg(message)}"
                 )
 
                 client_socket.sendall(data)
