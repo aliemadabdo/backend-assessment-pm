@@ -45,7 +45,7 @@ The server follows a simple four-state lifecycle: **Init**, **Listening**, **Pro
 * **Init** — Creates and configures the TCP socket
 * **Listening** — Waits for incoming client connections using `accept()`. (A timeout allows the server to periodically check whether shutdown has been requested).
 * **Processing** — After accepting a client, the server creates a dedicated handler thread for that connection and continues accepting additional clients. Client connections are handled independently and concurrently.
-* **Stop** — Triggered when the server is requested to shut down or encounters an unrecoverable error.
+* **Stop** — Triggered when the server is requested to shut down or encounters an unrecoverable error. (Note that the arrow from stop to init just means a server restart)
 
 ![State Machine](img/state_machine.png)
 
@@ -53,22 +53,29 @@ The server follows a simple four-state lifecycle: **Init**, **Listening**, **Pro
 
 - Echoes text messages back to the sending client
 - Handles multiple concurrent clients using threads
+- Handles arbitrary length of messages.
 - Graceful client disconnect handling and server shutdown
 - Minimal dependencies — only the Python standard library required
 
 ## Quickstart
-**1. Start the server** (workspace root, one terminal):
+
+**1. Make sure you are in the task directory** (`backend-assessment-pm/task1-client-server`):
+```bash
+cd backend-assessment-pm/task1-client-server
+```
+
+**2. Start the server** (in the project root, open a terminal):
 ```bash
 python3 src/server.py
 ```
 
-**2. Start one or more clients** (separate terminals, to simulate multiple concurrent
+**3. Start one or more clients** (in separate terminals to simulate multiple concurrent
 connections — each spawns its own handler thread on the server, as shown above):
 ```bash
 python3 src/client.py
 ```
 
-**3. Chat with the server.** In the client terminal, type a message and press Enter — the
+**4. Chat with the server.** In the client terminal, type a message and press Enter — the
 server echoes it back. Type `exit` to disconnect that client only; other
 connected clients and the server keep running.
 
@@ -81,4 +88,6 @@ connected clients and the server keep running.
 
 - For higher concurrency, swap the accept loop for `selectors`, `asyncio`, or a
   ***bounded worker pool***, so the architecture diagram's shape stays the same, only how the listener dispatches work changes.
+
+- Alternatively solution for messages with arbitrary length, we could include the message length in a header and then read data in a loop until the full message is received. If the expected amount of data is not received, the input can be treated as invalid.
 
