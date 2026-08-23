@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16
+    container_name: bookstore_db
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-bookstore}
       POSTGRES_USER: ${POSTGRES_USER:-bookstore}
@@ -9,6 +10,33 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bookstore} -d ${POSTGRES_DB:-bookstore}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Optional full-stack containerized setup.
+  # Uncomment this service if you want the Django app to run inside Docker too.
+  # web:
+  #   build: .
+  #   container_name: bookstore_web
+  #   command: python manage.py runserver 0.0.0.0:8000
+  #   environment:
+  #     POSTGRES_HOST: db
+  #     POSTGRES_DB: ${POSTGRES_DB:-bookstore}
+  #     POSTGRES_USER: ${POSTGRES_USER:-bookstore}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bookstore_password}
+  #     POSTGRES_PORT: 5432
+  #     DEBUG: "True"
+  #     ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   volumes:
+  #     - .:/app
 
 volumes:
   postgres_data:
