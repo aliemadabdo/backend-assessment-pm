@@ -2,6 +2,25 @@
 
 A Django REST Framework backend for managing books, reviews, and authenticated user interactions in a bookstore application.
 
+## Table of Contents
+
+- [1. Overview](#1-overview)
+- [2. Core Features](#2-core-features)
+- [3. System Architecture](#3-system-architecture)
+- [4. Business Rules and Assumptions](#4-business-rules-and-assumptions)
+- [5. Project Structure](#5-project-structure)
+- [6. Prerequisites](#6-prerequisites)
+- [7. Quick Start](#7-quick-start)
+- [8. Environment and Configuration](#8-environment-and-configuration)
+- [9. API Endpoints](#9-api-endpoints)
+- [10. API Documentation](#10-api-documentation)
+- [11. Admin Panel](#11-admin-panel)
+- [12. Error Handling](#12-error-handling)
+- [13. Logging and Observability](#13-logging-and-observability)
+- [14. Query Performance Notes](#14-query-performance-notes)
+- [15. Testing](#15-testing)
+- [16. Security](#16-security)
+
 ## 1. Overview
 
 This project provides a lightweight API where users can:
@@ -28,7 +47,7 @@ The system is intentionally small and focused, but it includes production-consci
 
 ## 3. System Architecture
 
-### 3.1 High-level architecture
+### [3.1 High-level architecture](img/system_arch.png)
 
 <!-- ![System Architecture](img/system_arch.png) -->
 
@@ -41,7 +60,7 @@ flowchart TB
     DRF --> Docs[drf-spectacular Swagger/OpenAPI]
 ```
 
-### 3.2 Entity relationship model
+### 3.2 [Entity relationship model](img/ERD.png)
 
 <!-- ![Entity Relationship Diagram](img/ERD.png) -->
 
@@ -222,7 +241,7 @@ During local development, the Django server runs with `python manage.py runserve
 - `GET /api/books/<id>/reviews/` — list reviews for a book
 - `POST /api/books/<id>/reviews/` — create a review for the current authenticated user
 
-#### Request flow example - create a review 
+#### [Request flow example - create a review](img/image%20copy%202.png) 
 
 <!-- ![Request flow example — submitting a review](img/image%20copy%202.png) -->
 
@@ -266,6 +285,15 @@ This is configured in `config/urls.py`.
 Django admin is available at:
 
 - `/admin/`
+
+> **Important reviewer note:** For local task review, use the following superuser credentials:
+>
+> - Username: `admin`
+> - Password: `admin123`
+>
+> Run `python manage.py create_default_admin` during setup if this account does not exist yet. These credentials are intended for local assessment use only and must be changed or removed before any deployment.
+
+> I also recommend using swagger for seamless testing for the filters, search and ordring features in the API
 
 This allows administrators to manage:
 
@@ -341,6 +369,12 @@ The project includes model and API tests covering the main contract.
 - review creation validation,
 - duplicate review rejection,
 - response status codes and expected payload content.
+
+Make sure to activate the virtual environment before running any test commands:
+
+```bash
+source .venv/bin/activate
+```
 
 Run tests for each app:
 
