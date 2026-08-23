@@ -12,11 +12,24 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 # ── Port kill ────────────────────────────────────────────────
-echo "Killing any process on port 8000..."
-if command -v fuser >/dev/null 2>&1; then
-    fuser -k 8000/tcp 2>/dev/null || true
-fi
-sleep 1
+#!/bin/bash
+
+kill_port() {
+    local port=$1
+    local pids
+    pids=$(lsof -t -i :"$port" 2>/dev/null)
+    if [ -n "$pids" ]; then
+        echo "Killing processes on port $port: $pids"
+        kill -9 $pids
+    else
+        echo "Nothing running on port $port"
+    fi
+    sleep 1
+}
+
+# ── Port kill ────────────────────────────────────────────────
+kill_port 8000
+kill_port 5432
 
 # ── Virtual Environment Setup ────────────────────────────────
 if [ ! -d ".venv" ]; then
