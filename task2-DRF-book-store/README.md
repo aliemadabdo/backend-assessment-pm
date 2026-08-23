@@ -241,7 +241,7 @@ During local development, the Django server runs with `python manage.py runserve
 - `GET /api/books/<id>/reviews/` — list reviews for a book
 - `POST /api/books/<id>/reviews/` — create a review for the current authenticated user
 
-#### [Request flow example - create a review](img/image%20copy%202.png) 
+#### [Request flow example - create a review](img/review_seq_diagram.png) 
 
 <!-- ![Request flow example — submitting a review](img/image%20copy%202.png) -->
 
