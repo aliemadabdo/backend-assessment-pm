@@ -46,11 +46,23 @@ else
 fi
 
 # ── Database Setup ───────────────────────────────────────────
-docker-compose down
-docker-compose up -d
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_CMD="docker-compose"
+else
+    echo "Docker Compose is required but not found on PATH."
+    exit 1
+fi
 
-# Wait for the database to be ready
-sleep 3
+$COMPOSE_CMD down
+$COMPOSE_CMD up -d db
+
+# Wait for PostgreSQL to accept connections before Django starts working
+until $COMPOSE_CMD exec -T db pg_isready -U "${POSTGRES_USER:-bookstore}" -d "${POSTGRES_DB:-bookstore}" >/dev/null 2>&1; do
+    echo "Waiting for PostgreSQL to be ready..."
+    sleep 2
+done
 
 # ── Django database seeding ────────────────────────────────────────
 python manage.py migrate
@@ -59,7 +71,7 @@ python manage.py seed_books
 
 # ── Start Backend ────────────────────────────────────────────
 echo "Starting backend..."
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 BACKEND_PID=$!
 
 # Verify backend actually started

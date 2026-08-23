@@ -21,7 +21,7 @@ services:
   # web:
   #   build: .
   #   container_name: bookstore_web
-  #   command: python manage.py runserver 0.0.0.0:8000
+  #   command: python manage.py runserver 0.0.0.0:8888
   #   environment:
   #     POSTGRES_HOST: db
   #     POSTGRES_DB: ${POSTGRES_DB:-bookstore}
@@ -31,7 +31,7 @@ services:
   #     DEBUG: "True"
   #     ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0
   #   ports:
-  #     - "8000:8000"
+  #     - "8888:8888"
   #   depends_on:
   #     db:
   #       condition: service_healthy
