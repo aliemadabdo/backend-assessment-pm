@@ -35,9 +35,9 @@ kill_port 5432
 if [ ! -d ".venv" ]; then
     echo "Creating virtual environment using uv if available, otherwise venv..."
     if command -v uv >/dev/null 2>&1; then
-        uv venv .venv
+        uv venv .venv --python 3.12
     else
-        python3 -m venv .venv
+        python3.12 -m venv .venv
     fi
 fi
 
