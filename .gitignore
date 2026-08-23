@@ -233,3 +233,4 @@ __pycache__/
 
 */docs
 task2-DRF-book-store/security.md
+task2-DRF-book-store/start-docker.sh
