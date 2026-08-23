@@ -145,14 +145,14 @@ chmod +x start.sh
 
 This script does the following:
 
-- cleans up any stale port 8880 process,
+- cleans up any stale port 8000 process,
 - creates a local virtual environment if needed,
 - installs dependencies using uv when available, otherwise pip,
 - starts PostgreSQL via Docker Compose,
 - runs migrations,
 - creates the default admin user,
 - seeds sample books,
-- starts the Django backend on port 8880.
+- starts the Django backend on port 8000.
 
 ### Option B: Run manually
 
@@ -403,25 +403,3 @@ To harden the application for production, the following should be added next:
 - restrict ALLOWED_HOSTS and CORS properly,
 - secure the admin interface with MFA and restricted access,
 - secure secret management outside local `.env` files using a secret manager service (i.e. AWS SeretManager) or GitHub secrets
-
-## 17. Setup Script Summary
-
-The included `start.sh` script gives an easy local bootstrap flow:
-
-1. clean stale port 8880 processes,
-2. create a Python virtual environment if missing,
-3. install dependencies with uv or pip,
-4. launch PostgreSQL with Docker Compose,
-5. run migrations,
-6. create the default admin user,
-7. seed books,
-8. start the Django development server.
-
-This is the fastest way to bring the project up for local development or review.
-
-## 18. Conclusion
-
-This application demonstrates a clean Django + DRF setup for a small bookstore backend with user authentication, business validation, review logic, schema-based API documentation, and a predictable deployment flow through Docker Compose.
-
-It is a good foundation for a backend service and is ready to be extended with advanced security, observability, and production-hardening features.
-
