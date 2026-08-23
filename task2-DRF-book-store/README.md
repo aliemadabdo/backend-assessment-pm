@@ -30,7 +30,7 @@ The system is intentionally small and focused, but it includes production-consci
 
 ### 3.1 High-level architecture
 
-![System Architecture](img/system_arch.png)
+<!-- ![System Architecture](img/system_arch.png) -->
 
 ```mermaid
 flowchart TB
