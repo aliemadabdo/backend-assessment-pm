@@ -4,13 +4,13 @@ This repository contains a backend assessment with two focused tasks:
 
 ## Overview
 
-- Task 1: a multi-threaded TCP echo server implemented in Python
-- Task 2: an online bookstore API built with Django and Django REST Framework
+- [Task 1](task1-client-server/README.md): a multi-threaded TCP echo server implemented in Python
+- [Task 2](task2-DRF-book-store/README.md): an online bookstore API built with Django and Django REST Framework
 
 ## Project structure
 
-- task1-client-server: concurrent client/server networking and system-level behavior study
-- task2-DRF-book-store: bookstore backend with authentication, books, reviews, and API documentation
+- [task1-client-server](task1-client-server/README.md): concurrent client/server networking and system-level behavior study
+- [task2-DRF-book-store](task2-DRF-book-store/README.md): bookstore backend with authentication, books, reviews, and API documentation
 
 ## Purpose
 
